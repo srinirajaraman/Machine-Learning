@@ -10,7 +10,9 @@ List of Machine Learning techniques covered.
 2.2 Recurrent Neural Networks
 
 # Citations and the list of references:
-1.1 Restricted Boltzmann Machine : Reference Link -> http://image.diku.dk/igel/paper/TRBMAI.pdf 
+1.1 Restricted Boltzmann Machine : Reference Link ->
+	https://www.cs.toronto.edu/~hinton/absps/guideTR.pdf
+	http://image.diku.dk/igel/paper/TRBMAI.pdf 
 
 1.2 Restricted Boltzmann Machine to Recognize transformations -> http://www.iro.umontreal.ca/~memisevr/pubs/cvpr07.pdf 
 
