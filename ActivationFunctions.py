@@ -1,4 +1,7 @@
-﻿import numpy as np
+﻿'''
+Helper module to compute various activation functions
+'''
+import numpy as np
 
 def function_logistic(x):
     return 1.0 / (1 + np.exp(-x))

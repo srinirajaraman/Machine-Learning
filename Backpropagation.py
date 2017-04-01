@@ -1,3 +1,8 @@
+'''
+This python code is to test the Backpropagation in Neural Networks.
+
+Datasets - XOR and MNIST
+'''
 import gc as gc
 import os
 import random
@@ -24,7 +29,8 @@ def PlotData(x, y):
     plt.ylim([-5, 5])
     plt.xlabel('Per - Epoch')
     plt.ylabel('Error ')
-
+	
+#Initialize the network
 def function_initialise( numberOfInputNodes, numberOfHiddenNodes, numberOfOutputNodes):
 
     backPropStruct = namedtuple("backProp", "N M O Y_i Y_j Y_k V_i V_j V_k W_ji W_kj")
@@ -66,6 +72,7 @@ def function_initialise( numberOfInputNodes, numberOfHiddenNodes, numberOfOutput
     
     return backPropStruct
 
+	#Step 1: Feedforward 
 def function_feed_forward( inputData, backPropStruct ):
     #Create activation function for inputNodes
     backPropStruct.Y_i[1 :] = inputData
@@ -80,6 +87,7 @@ def function_feed_forward( inputData, backPropStruct ):
 
     return backPropStruct
 
+	#Step 2: Backpropagate errors based on Linear Least squares as the cost function
 def function_back_propagate( d_k , learningRate, momentumFactor, backPropStruct):
 
     #Eqn 4.21 from page 133
@@ -96,6 +104,7 @@ def function_back_propagate( d_k , learningRate, momentumFactor, backPropStruct)
     #Eqn 4.26 of page 133 to compute delta j
     delW_ji = ( np.dot(del_j, backPropStruct.Y_i.T))
 
+	#Parameter updation
     #Eqn 4.15 of page 131 to compute delta j to update weights from ouput to hidden layer
     backPropStruct.W_kj[:][:] = backPropStruct.W_kj[:][:] +  learningRate * del_W_kj + momentumFactor * backPropStruct.C_kj[:][:]  
     backPropStruct.C_kj = del_W_kj
@@ -109,6 +118,7 @@ def function_back_propagate( d_k , learningRate, momentumFactor, backPropStruct)
 
     return totalErr, backPropStruct
 
+#Train the XOR model
 def function_XOR_train(input_images, expected_labels, arrayRepNum, learningRate, momentumFactor, maxIterations, backPropStruct, logger, log_path, trainingInd):
     
     logger = open(log_path, 'w')
@@ -131,6 +141,7 @@ def function_XOR_train(input_images, expected_labels, arrayRepNum, learningRate,
     logger.close()
     return backPropStruct 
 
+	#Train the MNIST model
 def function_BP_train(input_images, expected_labels, arrayRepNum, learningRate, momentumFactor, maxIterations, backPropStruct, logger, log_path, trainingInd):
     
     for dataInd in range(0, len(input_images)):   
@@ -150,12 +161,14 @@ def function_BP_train(input_images, expected_labels, arrayRepNum, learningRate, 
     logger.read()
     #logger.close()
     return backPropStruct 
-
+	
+	#Test the MNIST model
 def function_BP_test(patterns, backPropStruct):
   
     inputVec = (function_to_reshape(patterns, patterns.size))
     return function_feed_forward(inputVec, backPropStruct)
 
+	#Test the XOR model
 def function_XOR_test(patterns, backPropStruct):
   
     inputVec = (function_to_reshape(patterns, len(patterns)))

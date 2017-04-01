@@ -1,4 +1,7 @@
-﻿import threading
+﻿'''
+This python code is to train the ML model to recognise affine transformation based on Probabilistic graph model
+'''
+import threading
 from multiprocessing import Process, Pipe, Lock
 import scipy as sci
 import os 
@@ -127,6 +130,7 @@ def function_reshape_arr(test_arr, val1, val2, val3):
     else:
         return np.reshape(test_arr, (val1, val2, val3))
 
+#Initialize the network
 def function_initialise(visible_nodes, hidden_nodes, output_nodes, learning_rate):
 
     rbm_struct = namedtuple("rbm_struct", "v_val h_val o_val visible_nodes hidden_states output_nodes weights learning_rate rng bj ci ")
@@ -155,8 +159,10 @@ def rbm_update(rbm_struct, inputimage, output_image):
 
     rbm_struct.output_nodes = output_image
 
+	#Compute the probability of hidden states
     p_h_c_v_zero, sampled_p_h_c_v_zero = get_h_given_v(rbm_struct, rbm_struct.visible_states, rbm_struct.output_nodes)
 
+	#Gibbs sampling and learning is achieved through contrastive divergence (K = 1 )
     [p_v_c_h_k, sampled_p_v_c_h_k, p_h_c_v_k, sampled_p_h_c_v_k] = gibbs_sampling(rbm_struct, rbm_struct.visible_states, sampled_p_h_c_v_zero, rbm_struct.output_nodes)
 
     temp = rbm_struct.visible_states * output_image.T 
@@ -175,10 +181,12 @@ def rbm_update(rbm_struct, inputimage, output_image):
 
     c1 = a1 * b1.T    
 
+	#Parameters updation
     rbm_struct.weights += rbm_struct.learning_rate * (c - c1)
     rbm_struct.bj += rbm_struct.learning_rate * np.mean(rbm_struct.visible_states - sampled_p_v_c_h_k, axis=0)
     rbm_struct.ci += rbm_struct.learning_rate * np.mean(p_h_c_v_zero - p_h_c_v_k, axis=0)
     
+#Compute the probability of hidden states
 
 def get_h_given_v(rbm_struct, x_i_input_image, y_j_output_image):
     
@@ -190,6 +198,8 @@ def get_h_given_v(rbm_struct, x_i_input_image, y_j_output_image):
 
     return [p_h_c_v_k, sampled_p_h_c_v_k]
 
+	
+	#Compute the probability of output states
 def get_y_given_h(rbm_struct, x_i_input_image, h0_sample):
     
     a = np.tensordot(x_i_input_image.T, rbm_struct.weights[:, :, :], 1).T
@@ -199,12 +209,14 @@ def get_y_given_h(rbm_struct, x_i_input_image, h0_sample):
         
     return [p_v_c_h_k, sampled_p_v_c_h_k]
    
+
 def gibbs_sampling( rbm_struct, x_i_input_image, h0_sample, y_j_output_image):
     p_v_c_h_k, sampled_p_v_c_h_k = get_y_given_h(rbm_struct, x_i_input_image, h0_sample)
     p_h_c_v_k, sampled_p_h_c_v_k = get_h_given_v(rbm_struct, x_i_input_image, sampled_p_v_c_h_k)
 
     return [p_v_c_h_k, sampled_p_v_c_h_k, p_h_c_v_k, sampled_p_h_c_v_k]
- 
+
+#Testing the model 	
 def reconstruct(rbm_struct, input_images, test_image):
     
     for i in range(0, 1):
@@ -227,6 +239,7 @@ def plot_weight_matrix(figpath, weight_matrix):
         mplt.pause(0.001)
         mplt.savefig(figpath + '/WeightMatrix/' + 'Weightmatrix_node_' + str(i) + '.png')
 
+#	Training the model 
 def rbm_train(rbm_struct, input_images, training_ind):
     for i in range(1, np.shape(input_images)[0] - 1):
         input_image = np.transpose(input_images[[i]])

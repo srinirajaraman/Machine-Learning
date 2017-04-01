@@ -1,16 +1,25 @@
+'''
+This python code is to test the naive-bayes-classifier-scratch-python
+http://machinelearningmastery.com/naive-bayes-classifier-scratch-python/
+'''
+
 import csv
 import os as os  
 import math
 import random
 
+#Compute mean
 def computeMean(numbers):
     return sum(numbers)/float(len(numbers))
 
+
+#Compute standard dev	
 def computeStdDev(numbers):
     avg = computeMean(numbers)
     variance = sum([pow(x-avg, 2) for x in numbers])/float(len(numbers)-1)
     return math.sqrt(variance)
      
+#Load the dataset given the file
 def loadDataset(fileName):
     lines = csv.reader(open(fileName, 'rb'))
     dataset = list(lines)
@@ -40,10 +49,12 @@ def summarizeByClass(dataset):
         summaries[classval] = summarize(instances)
     return summaries
 
+
 def calcGaussianProb(x, mean, stdDev):
     exponent = math.exp(- (math.pow(x - mean, 2)/(2 * math.pow(stdDev, 2))))
     return 1/(math.sqrt(2 * math.pi) * stdDev) * exponent
 
+#Compute class probabilities for each of the summaries
 def calculateClassProb(summaries, inputVec):
     prob = {}
     for classVal, classSumm in summaries.iteritems(): 
@@ -53,6 +64,7 @@ def calculateClassProb(summaries, inputVec):
             x = inputVec[i]
             prob[classVal] *= calcGaussianProb(x, mean, stddev)
     return prob
+	
 def predict(summaries, inputVec):   
     probs = calculateClassProb(summaries, inputVec)
     bestLabel  = None
@@ -63,6 +75,7 @@ def predict(summaries, inputVec):
 			bestLabel = classValue
     return bestLabel
 
+# Predictive computation
 def makePredictions(summaries, testSet):
     predictions = []
     for i in range(len(testSet)):
@@ -70,6 +83,7 @@ def makePredictions(summaries, testSet):
         predictions.append(res)
     return predictions
 
+#Accuracy computation
 def getAccuracy(testSet, predictions):
 	correct = 0
 	for x in range(len(testSet)):
@@ -77,6 +91,8 @@ def getAccuracy(testSet, predictions):
 			correct += 1
 	return (correct/float(len(testSet))) * 100.0
 
+	
+	# Split the dataset to get training 
 def splitDataset(dataset, splitRatio):
 	trainSize = int(len(dataset) * splitRatio)
 	trainSet = []

@@ -1,3 +1,7 @@
+'''
+This python code is to train the ML model to recognise digits of a MNIST dataset based on Probabilistic graph model
+
+'''
 from ImportData import function_import_mnist
 import os
 import sys
@@ -14,7 +18,7 @@ from matplotlib import pylab as mplt
 import math as m
 from sympy.physics.quantum import TensorProduct
 
-
+#Initialize the network
 def function_initialise(visible_nodes, hidden_nodes, output_nodes):
 
     rbm_struct = namedtuple("rbm_struct", "v_val h_val o_val visible_nodes hidden_states output_nodes weights rng bj ci ")
@@ -41,8 +45,10 @@ def rbm_update(inputimage, output_image, rbm_struct, learning_rate):
     rbm_struct.visible_states = inputimage
     rbm_struct.output_nodes = output_image
 
+	#Compute the probability of hidden states
     p_h_c_v_zero, sampled_p_h_c_v_zero = get_h_given_v(rbm_struct, rbm_struct.visible_states, rbm_struct.output_nodes)
 
+	#Gibbs sampling and learning is achieved through contrastive divergence (K = 1 )
     [p_v_c_h_k, sampled_p_v_c_h_k, p_h_c_v_k, sampled_p_h_c_v_k] = gibbs_sampling(rbm_struct, rbm_struct.visible_states, sampled_p_h_c_v_zero, rbm_struct.output_nodes)
 
     temp = rbm_struct.visible_states * p_v_c_h_k.T 
@@ -60,12 +66,16 @@ def rbm_update(inputimage, output_image, rbm_struct, learning_rate):
 
     b1 = np.reshape(p_h_c_v_k , (rbm_struct.h_val, 1))
 
-    c1 = a1 * b1.T    
-
+    c1 = a1 * b1.T 
+	
+	
+	#Parameters updation
     rbm_struct.weights += learning_rate * (c - c1)
  
     return rbm_struct
 
+	
+#Compute the probability of hidden states
 
 def get_h_given_v(rbm_struct, x_i_input_image, y_j_output_image):
     
@@ -78,6 +88,7 @@ def get_h_given_v(rbm_struct, x_i_input_image, y_j_output_image):
 
     return [p_h_c_v_k, sampled_p_h_c_v_k]
 
+#Compute the probability of output states
 def get_y_given_h(rbm_struct, x_i_input_image, h0_sample):
     
     a = np.tensordot(x_i_input_image.T, rbm_struct.weights[:, :, :], 1).T
@@ -111,6 +122,7 @@ def get_reconstruction_cross_entropy(rbm_struct):
         
     return cross_entropy
 
+#Testing the model
 def reconstruct(rbm_struct, test_image):
     
     pre_sigmoid_activation_h =  np.dot(rbm_struct.weights, test_image) #+  rbm_struct.ci
@@ -149,7 +161,7 @@ def plot_weight_matrix(rbm_struct, weight_matrix, input_nodes, hidden_nodes):
             mplt.imshow(plot_mat[i][j], cmap = 'gray')
             mplt.show()    
         
-    
+#Train the model
 def rbm_train(input_images, expected_labels, arrayRepNum, learningRate, maxIterations, rbm_struct, logger, log_path, training_ind):
     for i in range(0, maxIterations):
         image_ind = randint(0, len(input_images) - 1)
